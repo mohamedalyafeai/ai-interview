@@ -41,6 +41,90 @@ const Interview = () => {
     checkAuth();
   }, [navigate]);
 
+  // Voice Recording Functions
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Initialize Web Speech API for speech recognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript + ' ';
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (finalTranscript) {
+            setAnswer(prev => prev + finalTranscript);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+      }
+
+      // Start MediaRecorder for audio recording
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      // Start timer
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      toast.success('Voice recording started');
+    } catch (error) {
+      console.error('Error starting voice recording:', error);
+      toast.error('Could not access microphone. Please allow microphone access.');
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+
+      setIsRecording(false);
+      clearInterval(recordingIntervalRef.current);
+      toast.success('Voice recording stopped');
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const roles = [
     'Software Engineer',
     'Data Scientist',
