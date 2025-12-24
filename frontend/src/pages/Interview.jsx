@@ -6,7 +6,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Sparkles, Video, Send, ArrowLeft, Loader2, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { mockQuestions, mockFeedback } from '../mock/mockData';
+import { authService, interviewService } from '../services/api';
 
 const Interview = () => {
   const navigate = useNavigate();
