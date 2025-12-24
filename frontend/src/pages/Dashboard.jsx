@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import NavBar from '../components/NavBar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Sparkles, Video, FileText, TrendingUp, Clock, LogOut, Award, Target } from 'lucide-react';
