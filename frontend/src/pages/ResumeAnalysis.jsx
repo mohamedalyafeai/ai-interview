@@ -232,7 +232,7 @@ const ResumeAnalysis = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {analysis.strengths.map((strength, index) => (
+                  {analysis?.strengths && analysis.strengths.map((strength, index) => (
                     <li key={index} className="flex items-start p-4 bg-green-50 rounded-lg border border-green-100">
                       <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
                       <span className="text-gray-700">{strength}</span>
