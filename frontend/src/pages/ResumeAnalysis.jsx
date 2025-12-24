@@ -202,11 +202,11 @@ const ResumeAnalysis = () => {
 
             {/* Category Scores */}
             <div className="grid md:grid-cols-3 gap-6">
-              {Object.entries(analysis.categoryScores).map(([category, score]) => (
+              {analysis?.category_scores && Object.entries(analysis.category_scores).map(([category, score]) => (
                 <Card key={category} className="border-2 border-purple-100 hover:shadow-lg transition-all">
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 capitalize">
-                      {category.replace(/([A-Z])/g, ' $1').trim()}
+                      {category.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}
                     </h3>
                     <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent mb-3">
                       {score}/100
