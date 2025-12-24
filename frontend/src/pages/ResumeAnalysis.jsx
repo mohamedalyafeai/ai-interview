@@ -26,6 +26,18 @@ const ResumeAnalysis = () => {
     checkAuth();
   }, [navigate]);
 
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      localStorage.removeItem('user');
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      localStorage.removeItem('user');
+      navigate('/');
+    }
+  };
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
