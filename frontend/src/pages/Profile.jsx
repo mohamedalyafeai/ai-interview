@@ -87,16 +87,44 @@ const Profile = () => {
               <CardTitle className="text-2xl">Profile Information</CardTitle>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
-              <div className="flex items-center space-x-6 mb-6">
-                <img
-                  src={user.picture || `https://ui-avatars.com/api/?name=${user.name}&background=7c3aed&color=fff&size=120`}
-                  alt={user.name}
-                  className="w-24 h-24 rounded-full border-4 border-purple-200"
-                />
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
-                  <p className="text-gray-600">{user.email}</p>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-6">
+                  <img
+                    src={user.picture || `https://ui-avatars.com/api/?name=${user.name}&background=7c3aed&color=fff&size=120`}
+                    alt={user.name}
+                    className="w-24 h-24 rounded-full border-4 border-purple-200"
+                  />
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                    <p className="text-gray-600">{user.email}</p>
+                  </div>
                 </div>
+                {!editing ? (
+                  <Button
+                    onClick={() => setEditing(true)}
+                    className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white"
+                  >
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleSave}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setEditing(false);
+                        setFormData({ name: user.name, birthday: user.birthday || '' });
+                      }}
+                      variant="outline"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -104,9 +132,10 @@ const Profile = () => {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
                   <Input
-                    value={user.name}
-                    disabled
-                    className="pl-10 bg-gray-50"
+                    value={editing ? formData.name : user.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    disabled={!editing}
+                    className={`pl-10 ${!editing ? 'bg-gray-50' : 'bg-white border-purple-300'}`}
                   />
                 </div>
               </div>
@@ -119,6 +148,22 @@ const Profile = () => {
                     value={user.email}
                     disabled
                     className="pl-10 bg-gray-50"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              </div>
+
+              <div>
+                <Label className="text-gray-700 mb-2 block">Birthday</Label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
+                  <Input
+                    type="date"
+                    value={editing ? formData.birthday : (user.birthday || '')}
+                    onChange={(e) => setFormData({...formData, birthday: e.target.value})}
+                    disabled={!editing}
+                    className={`pl-10 ${!editing ? 'bg-gray-50' : 'bg-white border-purple-300'}`}
+                    placeholder="Select your birthday"
                   />
                 </div>
               </div>
