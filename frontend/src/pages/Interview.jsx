@@ -128,6 +128,60 @@ const Interview = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // NEW: AI Text-to-Speech Function
+  const speakText = (text) => {
+    if (!voiceMode) return;
+    
+    setIsSpeaking(true);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    
+    // Try to use a professional voice
+    const voices = synthRef.current.getVoices();
+    const preferredVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha')) || voices[0];
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      if (voiceMode && !isRecording) {
+        // Auto-start recording after AI speaks
+        setTimeout(() => {
+          startVoiceRecording();
+        }, 500);
+      }
+    };
+    
+    synthRef.current.speak(utterance);
+  };
+
+  // NEW: Toggle Voice Mode
+  const toggleVoiceMode = () => {
+    const newVoiceMode = !voiceMode;
+    setVoiceMode(newVoiceMode);
+    
+    if (newVoiceMode) {
+      toast.success('🎤 Voice Mode ON - AI will speak to you!');
+      // Speak the current question
+      if (conversation.length > 0) {
+        const lastAiMessage = [...conversation].reverse().find(m => m.type === 'ai');
+        if (lastAiMessage) {
+          speakText(lastAiMessage.text);
+        }
+      }
+    } else {
+      toast.info('Voice Mode OFF');
+      synthRef.current.cancel();
+      setIsSpeaking(false);
+      if (isRecording) {
+        stopVoiceRecording();
+      }
+    }
+  };
+
   const roles = [
     'Software Engineer',
     'Data Scientist',
