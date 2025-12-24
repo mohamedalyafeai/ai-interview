@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Sparkles, Video, Send, ArrowLeft, Loader2, MessageCircle } from 'lucide-react';
+import { Sparkles, Video, Send, ArrowLeft, Loader2, MessageCircle, Mic, MicOff, Square } from 'lucide-react';
 import { toast } from 'sonner';
 import { authService, interviewService } from '../services/api';
 
@@ -20,6 +20,14 @@ const Interview = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [interviewComplete, setInterviewComplete] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  
+  // Voice recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const recordingIntervalRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = async () => {
