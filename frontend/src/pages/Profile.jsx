@@ -24,6 +24,10 @@ const Profile = () => {
       try {
         const response = await authService.getMe();
         setUser(response.data);
+        setFormData({
+          name: response.data.name,
+          birthday: response.data.birthday || ''
+        });
       } catch (error) {
         navigate('/login');
       } finally {
@@ -32,6 +36,17 @@ const Profile = () => {
     };
     fetchUser();
   }, [navigate]);
+
+  const handleSave = async () => {
+    try {
+      // TODO: Add API endpoint to update user profile
+      toast.success('Profile updated! (Feature will be fully implemented soon)');
+      setUser({...user, name: formData.name, birthday: formData.birthday});
+      setEditing(false);
+    } catch (error) {
+      toast.error('Failed to update profile');
+    }
+  };
 
   const handleLogout = async () => {
     try {
