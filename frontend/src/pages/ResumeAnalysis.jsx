@@ -14,12 +14,15 @@ const ResumeAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      navigate('/login');
-      return;
-    }
-    setUser(JSON.parse(userData));
+    const checkAuth = async () => {
+      try {
+        const response = await authService.getMe();
+        setUser(response.data);
+      } catch (error) {
+        navigate('/login');
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   const handleFileChange = (e) => {
