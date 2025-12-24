@@ -14,8 +14,7 @@ const Interview = () => {
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
   const [interviewStarted, setInterviewStarted] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [questionIndex, setQuestionIndex] = useState(0);
+  const [interviewId, setInterviewId] = useState(null);
   const [answer, setAnswer] = useState('');
   const [conversation, setConversation] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,12 +22,15 @@ const Interview = () => {
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      navigate('/login');
-      return;
-    }
-    setUser(JSON.parse(userData));
+    const checkAuth = async () => {
+      try {
+        const response = await authService.getMe();
+        setUser(response.data);
+      } catch (error) {
+        navigate('/login');
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   const roles = [
