@@ -121,34 +121,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button onClick={() => navigate('/')} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-violet-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-                AI Interview Pro
-              </span>
-            </button>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="text-sm font-semibold text-gray-900">{user.name}</div>
-                <div className="text-xs text-gray-500">{user.email}</div>
-              </div>
-              <Button
-                variant="ghost"
-                onClick={handleLogout}
-                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-              >
-                <LogOut className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <NavBar user={user} onLogout={handleLogout} />
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Section */}
