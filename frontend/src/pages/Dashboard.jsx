@@ -1,57 +1,118 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Sparkles, Video, FileText, TrendingUp, Clock, LogOut, Award, Target } from 'lucide-react';
-import { mockInterviewHistory } from '../mock/mockData';
+import { authService, dashboardService } from '../services/api';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [interviews, setInterviews] = useState([]);
+  const [stats, setStats] = useState({
+    total_interviews: 0,
+    average_score: '0/10',
+    total_time: '0h',
+    improvement_percentage: 0
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      navigate('/login');
-      return;
-    }
-    setUser(JSON.parse(userData));
-    setInterviews(mockInterviewHistory);
-  }, [navigate]);
+    const initializeDashboard = async () => {
+      // If user data passed from AuthCallback, use it directly
+      if (location.state?.user) {
+        setUser(location.state.user);
+        await fetchDashboardData();
+        return;
+      }
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/');
+      // Otherwise, verify session
+      try {
+        const response = await authService.getMe();
+        setUser(response.data);
+        await fetchDashboardData();
+      } catch (error) {
+        console.error('Auth error:', error);
+        toast.error('Please log in to continue');
+        navigate('/login');
+      }
+    };
+
+    const fetchDashboardData = async () => {
+      try {
+        const statsResponse = await dashboardService.getStats();
+        const data = statsResponse.data;
+        
+        setStats({
+          total_interviews: data.total_interviews || 0,
+          average_score: data.average_score || '0/10',
+          total_time: data.total_time || '0h',
+          improvement_percentage: data.improvement_percentage || 0
+        });
+        
+        setInterviews(data.recent_interviews || []);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeDashboard();
+  }, [navigate, location]);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      localStorage.removeItem('user');
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      localStorage.removeItem('user');
+      navigate('/');
+    }
   };
 
-  const stats = [
+  const statCards = [
     {
       title: 'Total Interviews',
-      value: '12',
+      value: stats.total_interviews,
       icon: <Video className="w-6 h-6" />,
       color: 'from-purple-500 to-violet-600'
     },
     {
       title: 'Average Score',
-      value: '8.5/10',
+      value: stats.average_score,
       icon: <Award className="w-6 h-6" />,
       color: 'from-violet-500 to-purple-600'
     },
     {
       title: 'Total Practice Time',
-      value: '4.5h',
+      value: stats.total_time,
       icon: <Clock className="w-6 h-6" />,
       color: 'from-purple-600 to-violet-700'
     },
     {
       title: 'Improvement',
-      value: '+23%',
+      value: `+${stats.improvement_percentage}%`,
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'from-violet-600 to-purple-700'
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;
@@ -101,7 +162,7 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-4 gap-6 mb-12">
-          {stats.map((stat, index) => (
+          {statCards.map((stat, index) => (
             <Card key={index} className="border-2 border-purple-100 hover:shadow-lg transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -167,9 +228,9 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-4">
               {interviews.length > 0 ? (
-                interviews.slice(0, 5).map((interview) => (
+                interviews.slice(0, 5).map((interview, index) => (
                   <div
-                    key={interview.id}
+                    key={index}
                     className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-100 hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex items-center space-x-4">
