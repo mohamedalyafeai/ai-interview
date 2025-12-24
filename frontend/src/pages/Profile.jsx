@@ -13,6 +13,11 @@ const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    birthday: ''
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
