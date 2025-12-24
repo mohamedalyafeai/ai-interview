@@ -44,17 +44,29 @@ const Interview = () => {
 
   const levels = ['Entry Level', 'Mid Level', 'Senior Level', 'Lead/Principal'];
 
-  const startInterview = () => {
+  const startInterview = async () => {
     if (!selectedRole || !selectedLevel) {
       toast.error('Please select both role and experience level');
       return;
     }
 
-    setInterviewStarted(true);
-    const firstQuestion = mockQuestions[0];
-    setCurrentQuestion(firstQuestion);
-    setConversation([{ type: 'ai', text: firstQuestion }]);
-    toast.success('Interview started! Good luck!');
+    setIsLoading(true);
+    try {
+      const response = await interviewService.start({
+        position: selectedRole,
+        level: selectedLevel
+      });
+      
+      setInterviewId(response.data.interview_id);
+      setInterviewStarted(true);
+      setConversation([{ type: 'ai', text: response.data.first_question }]);
+      toast.success('Interview started! Good luck!');
+    } catch (error) {
+      toast.error('Failed to start interview');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const submitAnswer = async () => {
