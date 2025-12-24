@@ -272,7 +272,7 @@ const ResumeAnalysis = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {analysis.suggestions.map((suggestion, index) => (
+                  {analysis?.suggestions && analysis.suggestions.map((suggestion, index) => (
                     <li key={index} className="flex items-start p-4 bg-white rounded-lg border border-purple-200">
                       <span className="text-purple-600 font-bold mr-3 flex-shrink-0">{index + 1}.</span>
                       <span className="text-gray-700">{suggestion}</span>
