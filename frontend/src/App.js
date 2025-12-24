@@ -7,6 +7,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Interview from './pages/Interview';
 import ResumeAnalysis from './pages/ResumeAnalysis';
+import Profile from './pages/Profile';
+import Subscription from './pages/Subscription';
 import AuthCallback from './pages/AuthCallback';
 import { Toaster } from './components/ui/sonner';
 
