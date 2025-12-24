@@ -230,7 +230,8 @@ async def auth_callback(
                 {"user_id": user_id},
                 {"$set": {
                     "name": user_data["name"],
-                    "picture": user_data["picture"]
+                    "picture": user_data["picture"],
+                    "auth_type": "google"
                 }}
             )
         else:
@@ -241,6 +242,7 @@ async def auth_callback(
                 "email": user_data["email"],
                 "name": user_data["name"],
                 "picture": user_data["picture"],
+                "auth_type": "google",
                 "created_at": datetime.now(timezone.utc),
                 "interview_count": 0,
                 "total_practice_time": 0
