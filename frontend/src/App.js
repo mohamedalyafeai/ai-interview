@@ -28,6 +28,8 @@ function AppRouter() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/interview" element={<Interview />} />
       <Route path="/resume-analysis" element={<ResumeAnalysis />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/subscription" element={<Subscription />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
