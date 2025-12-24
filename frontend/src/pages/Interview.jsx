@@ -337,13 +337,13 @@ const Interview = () => {
             <Card className="border-2 border-purple-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-gray-600">Question {questionIndex + 1} of {mockQuestions.length}</span>
+                  <span className="text-sm font-semibold text-gray-600">Question {Math.ceil(conversation.filter(m => m.type === 'ai').length)} of 6</span>
                   <span className="text-sm font-semibold text-purple-600">{selectedRole} - {selectedLevel}</span>
                 </div>
                 <div className="h-2 bg-purple-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-600 to-violet-600 transition-all duration-500"
-                    style={{ width: `${((questionIndex + 1) / mockQuestions.length) * 100}%` }}
+                    style={{ width: `${(conversation.filter(m => m.type === 'ai').length / 6) * 100}%` }}
                   ></div>
                 </div>
               </CardContent>
