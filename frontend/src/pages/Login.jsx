@@ -17,32 +17,35 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-6">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center space-x-2 mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-violet-600 rounded-lg flex items-center justify-center">
-            <Sparkles className="w-7 h-7 text-white" />
+        <div className="flex items-center justify-center space-x-3 mb-12">
+          <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-xl">
+            <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-            AI Interview Pro
-          </span>
+          <div>
+            <div className="text-3xl font-bold text-white">
+              AI Interview Pro
+            </div>
+            <div className="text-sm text-purple-300">Professional Interview Platform</div>
+          </div>
         </div>
 
-        <Card className="border-2 border-purple-100 shadow-2xl shadow-purple-500/10">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-3xl font-bold text-gray-900">
+        <Card className="border border-purple-500/20 shadow-2xl bg-slate-800/90 backdrop-blur-xl">
+          <CardHeader className="text-center pb-6 pt-8">
+            <CardTitle className="text-3xl font-bold text-white mb-3">
               Welcome Back
             </CardTitle>
-            <p className="text-gray-600 mt-2">
-              Sign in to continue your interview practice
+            <p className="text-purple-200">
+              Sign in to continue your professional development
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6 px-8 pb-8">
             <Button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full bg-white border-2 border-purple-200 text-gray-700 hover:bg-purple-50 hover:border-purple-300 py-6 text-lg font-semibold shadow-md transition-all duration-200"
+              className="w-full bg-white hover:bg-gray-50 text-gray-900 py-6 text-lg font-semibold shadow-xl transition-all duration-200 border-2 border-white/20"
             >
               <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
                 <path
@@ -62,30 +65,36 @@ const Login = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              {loading ? 'Signing in...' : 'Continue with Google'}
+              {loading ? 'Signing in...' : 'Sign In with Google'}
             </Button>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-purple-200"></div>
+                <div className="w-full border-t border-purple-500/20"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Don't have an account?</span>
+                <span className="px-4 bg-slate-800 text-purple-300">Don't have an account?</span>
               </div>
             </div>
 
             <Button
               variant="outline"
               onClick={() => navigate('/signup')}
-              className="w-full border-2 border-purple-200 text-purple-700 hover:bg-purple-50 py-6 text-lg font-semibold"
+              className="w-full border-2 border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:border-purple-500/50 py-6 text-lg font-semibold bg-transparent"
             >
-              Create Account
+              Create Professional Account
             </Button>
+
+            <div className="pt-4">
+              <p className="text-center text-xs text-purple-400">
+                Secure authentication powered by Google OAuth 2.0
+              </p>
+            </div>
           </CardContent>
         </Card>
 
         <div className="text-center mt-6">
-          <Button variant="ghost" onClick={() => navigate('/')} className="text-purple-600 hover:text-purple-700">
+          <Button variant="ghost" onClick={() => navigate('/')} className="text-purple-300 hover:text-purple-200">
             ← Back to Home
           </Button>
         </div>
