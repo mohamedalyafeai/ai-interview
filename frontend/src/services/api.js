@@ -16,7 +16,9 @@ export const authService = {
   logout: () => api.post('/auth/logout'),
   callback: (sessionId) => api.post('/auth/callback', {}, {
     headers: { 'X-Session-ID': sessionId }
-  })
+  }),
+  manualSignup: (data) => api.post('/auth/manual-signup', data),
+  manualLogin: (data) => api.post('/auth/manual-login', data)
 };
 
 // Interview
