@@ -45,6 +45,18 @@ const Interview = () => {
     checkAuth();
   }, [navigate]);
 
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      localStorage.removeItem('user');
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      localStorage.removeItem('user');
+      navigate('/');
+    }
+  };
+
   // Voice Recording Functions
   const startVoiceRecording = async () => {
     try {
