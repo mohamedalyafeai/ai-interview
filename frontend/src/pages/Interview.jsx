@@ -82,24 +82,28 @@ const Interview = () => {
     setConversation(newConversation);
     setAnswer('');
 
-    // Simulate AI processing
-    setTimeout(() => {
-      if (questionIndex < mockQuestions.length - 1) {
-        // Next question
-        const nextIndex = questionIndex + 1;
-        const nextQuestion = mockQuestions[nextIndex];
-        setQuestionIndex(nextIndex);
-        setCurrentQuestion(nextQuestion);
-        setConversation([...newConversation, { type: 'ai', text: nextQuestion }]);
-        setIsLoading(false);
-      } else {
-        // Interview complete
+    try {
+      const response = await interviewService.answer({
+        interview_id: interviewId,
+        answer: answer
+      });
+
+      if (response.data.is_complete) {
+        // Interview complete, get feedback
         setInterviewComplete(true);
-        setFeedback(mockFeedback);
-        setIsLoading(false);
-        toast.success('Interview completed! Here\'s your feedback.');
+        const feedbackResponse = await interviewService.complete(interviewId);
+        setFeedback(feedbackResponse.data.feedback);
+        toast.success('Interview completed!');
+      } else {
+        // Add AI response
+        setConversation([...newConversation, { type: 'ai', text: response.data.next_question }]);
       }
-    }, 1500);
+    } catch (error) {
+      toast.error('Error submitting answer');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!user) {
