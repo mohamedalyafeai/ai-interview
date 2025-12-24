@@ -37,7 +37,7 @@ const ResumeAnalysis = () => {
     }
   };
 
-  const analyzeResume = () => {
+  const analyzeResume = async () => {
     if (!file) {
       toast.error('Please upload a resume first');
       return;
@@ -45,12 +45,19 @@ const ResumeAnalysis = () => {
 
     setIsAnalyzing(true);
     
-    // Simulate AI analysis
-    setTimeout(() => {
-      setAnalysis(mockResumeAnalysis);
-      setIsAnalyzing(false);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await resumeService.upload(formData);
+      setAnalysis(response.data.analysis);
       toast.success('Analysis complete!');
-    }, 3000);
+    } catch (error) {
+      toast.error('Error analyzing resume');
+      console.error(error);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   if (!user) {
