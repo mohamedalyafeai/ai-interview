@@ -249,9 +249,19 @@ const Interview = () => {
         const feedbackResponse = await interviewService.complete(interviewId);
         setFeedback(feedbackResponse.data.feedback);
         toast.success('Interview completed!');
+        
+        if (voiceMode) {
+          speakText('Interview completed! Here is your feedback.');
+        }
       } else {
         // Add AI response
-        setConversation([...newConversation, { type: 'ai', text: response.data.next_question }]);
+        const aiResponse = response.data.next_question;
+        setConversation([...newConversation, { type: 'ai', text: aiResponse }]);
+        
+        // Speak AI response if voice mode is on
+        if (voiceMode) {
+          speakText(aiResponse);
+        }
       }
     } catch (error) {
       toast.error('Error submitting answer');
