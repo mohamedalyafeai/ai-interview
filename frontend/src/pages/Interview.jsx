@@ -478,17 +478,63 @@ const Interview = () => {
             {/* Answer Input */}
             <Card className="border-2 border-purple-200">
               <CardContent className="p-6 space-y-4">
-                <Textarea
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="Type your answer here..."
-                  className="min-h-32 border-2 border-purple-200 focus:border-purple-400 resize-none text-lg"
-                  disabled={isLoading}
-                />
+                {/* Voice Recording Indicator */}
+                {isRecording && (
+                  <div className="bg-red-50 border-2 border-red-500 rounded-lg p-4 flex items-center justify-between animate-pulse">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-red-700 font-semibold">Recording in progress...</span>
+                    </div>
+                    <span className="text-red-700 font-mono font-bold">{formatTime(recordingTime)}</span>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <Textarea
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="Type your answer or use voice recording..."
+                    className="min-h-32 border-2 border-purple-200 focus:border-purple-400 resize-none text-lg pr-16"
+                    disabled={isLoading || isRecording}
+                  />
+                  
+                  {/* Voice Recording Button (Floating) */}
+                  <div className="absolute bottom-3 right-3">
+                    {!isRecording ? (
+                      <Button
+                        type="button"
+                        onClick={startVoiceRecording}
+                        disabled={isLoading}
+                        className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                        title="Start voice recording"
+                      >
+                        <Mic className="w-5 h-5" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={stopVoiceRecording}
+                        className="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-lg animate-pulse"
+                        title="Stop voice recording"
+                      >
+                        <Square className="w-5 h-5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Professional Info about Voice */}
+                {!isRecording && (
+                  <div className="text-sm text-gray-600 flex items-center space-x-2">
+                    <Mic className="w-4 h-4 text-purple-600" />
+                    <span>Click the microphone icon to record your answer with voice</span>
+                  </div>
+                )}
+
                 <Button
                   onClick={submitAnswer}
-                  disabled={isLoading || !answer.trim()}
-                  className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-6 text-lg shadow-lg"
+                  disabled={isLoading || !answer.trim() || isRecording}
+                  className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-6 text-lg shadow-lg disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
