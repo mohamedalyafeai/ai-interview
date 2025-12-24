@@ -45,12 +45,18 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      // TODO: Call your manual registration API
-      // const response = await authService.manualSignup(formData);
-      toast.success('Account created! Please login');
-      navigate('/login');
+      const response = await authService.manualSignup({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+      
+      localStorage.setItem('user', JSON.stringify(response.data));
+      toast.success('Account created successfully!');
+      navigate('/dashboard');
     } catch (error) {
-      toast.error('Registration failed. Try again.');
+      const message = error.response?.data?.detail || 'Registration failed';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
