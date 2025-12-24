@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header, Response, Request
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, timezone, timedelta
+from passlib.context import CryptContext
 import os
 import uuid
 import httpx
@@ -10,6 +11,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 router = APIRouter()
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class ManualSignupRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
+class ManualLoginRequest(BaseModel):
+    email: EmailStr
+    password: str
 
 class User(BaseModel):
     user_id: str
@@ -26,6 +39,14 @@ class SessionResponse(BaseModel):
     name: str
     picture: str
     session_token: str
+
+# Helper function to hash password
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+# Helper function to verify password
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
 
 # Helper function to get user from session token
 async def get_current_user(request: Request) -> User:
