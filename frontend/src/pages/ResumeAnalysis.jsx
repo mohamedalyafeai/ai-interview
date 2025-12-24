@@ -252,7 +252,7 @@ const ResumeAnalysis = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {analysis.weaknesses.map((weakness, index) => (
+                  {analysis?.weaknesses && analysis.weaknesses.map((weakness, index) => (
                     <li key={index} className="flex items-start p-4 bg-orange-50 rounded-lg border border-orange-100">
                       <AlertCircle className="w-5 h-5 text-orange-500 mr-3 flex-shrink-0 mt-0.5" />
                       <span className="text-gray-700">{weakness}</span>
