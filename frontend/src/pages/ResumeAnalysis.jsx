@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import NavBar from '../components/NavBar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Sparkles, Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
