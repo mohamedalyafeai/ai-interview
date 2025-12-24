@@ -11,14 +11,9 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    // This will be integrated with Google OAuth later
-    toast.info('Google Login will be integrated soon!');
-    setTimeout(() => {
-      setLoading(false);
-      // Mock successful login
-      localStorage.setItem('user', JSON.stringify({ name: 'Demo User', email: 'demo@example.com' }));
-      navigate('/dashboard');
-    }, 1500);
+    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    const redirectUrl = window.location.origin + '/dashboard';
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   return (
