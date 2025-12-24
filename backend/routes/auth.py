@@ -86,6 +86,117 @@ async def get_current_user(request: Request) -> User:
     
     return User(**user_doc)
 
+@router.post("/manual-signup", response_model=SessionResponse)
+async def manual_signup(request: ManualSignupRequest, response: Response):
+    """Manual signup with email and password"""
+    try:
+        # Check if user already exists
+        existing_user = await db.users.find_one({"email": request.email}, {"_id": 0})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Create new user
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        hashed_password = hash_password(request.password)
+        
+        new_user = {
+            "user_id": user_id,
+            "email": request.email,
+            "name": request.name,
+            "picture": f"https://ui-avatars.com/api/?name={request.name}&background=7c3aed&color=fff",
+            "password_hash": hashed_password,
+            "auth_type": "manual",
+            "created_at": datetime.now(timezone.utc),
+            "interview_count": 0,
+            "total_practice_time": 0
+        }
+        await db.users.insert_one(new_user)
+        
+        # Create session token
+        session_token = f"session_{uuid.uuid4().hex}"
+        session_data = {
+            "user_id": user_id,
+            "session_token": session_token,
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.user_sessions.insert_one(session_data)
+        
+        # Set httpOnly cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            max_age=7 * 24 * 60 * 60,
+            path="/"
+        )
+        
+        return SessionResponse(
+            user_id=user_id,
+            email=request.email,
+            name=request.name,
+            picture=new_user["picture"],
+            session_token=session_token
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/manual-login", response_model=SessionResponse)
+async def manual_login(request: ManualLoginRequest, response: Response):
+    """Manual login with email and password"""
+    try:
+        # Find user
+        user_doc = await db.users.find_one({"email": request.email}, {"_id": 0})
+        if not user_doc:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Check if user has manual auth
+        if user_doc.get("auth_type") != "manual":
+            raise HTTPException(status_code=400, detail="Please use Google sign-in for this account")
+        
+        # Verify password
+        if not verify_password(request.password, user_doc["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Create session token
+        session_token = f"session_{uuid.uuid4().hex}"
+        session_data = {
+            "user_id": user_doc["user_id"],
+            "session_token": session_token,
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.user_sessions.insert_one(session_data)
+        
+        # Set httpOnly cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            max_age=7 * 24 * 60 * 60,
+            path="/"
+        )
+        
+        return SessionResponse(
+            user_id=user_doc["user_id"],
+            email=user_doc["email"],
+            name=user_doc["name"],
+            picture=user_doc["picture"],
+            session_token=session_token
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/callback", response_model=SessionResponse)
 async def auth_callback(
     response: Response,
