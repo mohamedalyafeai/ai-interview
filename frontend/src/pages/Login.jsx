@@ -2,18 +2,47 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Sparkles } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Sparkles, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { authService } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     const redirectUrl = window.location.origin + '/dashboard';
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  };
+
+  const handleManualLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.email || !formData.password) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await authService.manualLogin(formData);
+      localStorage.setItem('user', JSON.stringify(response.data));
+      toast.success('Login successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Login failed';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
