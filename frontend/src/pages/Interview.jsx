@@ -498,6 +498,37 @@ const Interview = () => {
           </Card>
         ) : (
           <div className="space-y-6">
+            {/* Voice Mode Toggle */}
+            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${voiceMode ? 'bg-gradient-to-r from-green-500 to-emerald-600 animate-pulse' : 'bg-gradient-to-r from-purple-500 to-violet-600'}`}>
+                      <Mic className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Two-Way Voice Conversation</h4>
+                      <p className="text-sm text-gray-600">
+                        {voiceMode ? '🎤 AI will speak to you & listen' : 'Talk directly with AI interviewer'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={toggleVoiceMode}
+                    className={`px-6 py-3 font-semibold ${voiceMode ? 'bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800' : 'bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700'} text-white shadow-lg`}
+                  >
+                    {voiceMode ? '🔊 Voice ON' : '🔇 Voice OFF'}
+                  </Button>
+                </div>
+                {isSpeaking && (
+                  <div className="mt-3 flex items-center space-x-2 text-green-600">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold">AI is speaking...</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Interview Progress */}
             <Card className="border-2 border-purple-200">
               <CardContent className="p-6">
