@@ -371,10 +371,10 @@ const LandingPage = () => {
           </p>
           <Button
             size="lg"
-            onClick={() => navigate('/signup')}
+            onClick={() => user ? navigate('/dashboard') : navigate('/signup')}
             className="bg-white text-purple-700 hover:bg-purple-50 text-lg px-8 py-6 shadow-2xl transform hover:scale-105 transition-all duration-200"
           >
-            Start Practicing Now - It's Free
+            {user ? 'Go to Dashboard' : 'Start Practicing Now - It\'s Free'}
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
