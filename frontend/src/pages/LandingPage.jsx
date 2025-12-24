@@ -164,6 +164,7 @@ const LandingPage = () => {
               <Button
                 size="lg"
                 variant="outline"
+                onClick={() => window.scrollTo({ top: 900, behavior: 'smooth' })}
                 className="border-2 border-purple-200 text-purple-700 hover:bg-purple-50 text-lg px-8 py-6"
               >
                 See How It Works
