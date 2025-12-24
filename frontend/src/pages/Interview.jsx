@@ -208,8 +208,14 @@ const Interview = () => {
       
       setInterviewId(response.data.interview_id);
       setInterviewStarted(true);
-      setConversation([{ type: 'ai', text: response.data.first_question }]);
+      const firstQuestion = response.data.first_question;
+      setConversation([{ type: 'ai', text: firstQuestion }]);
       toast.success('Interview started! Good luck!');
+      
+      // Speak the first question if voice mode is on
+      if (voiceMode) {
+        speakText(firstQuestion);
+      }
     } catch (error) {
       toast.error('Failed to start interview');
       console.error(error);
