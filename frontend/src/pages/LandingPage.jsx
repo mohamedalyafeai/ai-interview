@@ -113,14 +113,14 @@ const LandingPage = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-purple-100">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-violet-600 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
                 AI Interview Pro
               </span>
-            </div>
+            </button>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" onClick={() => navigate('/login')} className="text-purple-700 hover:text-purple-900 hover:bg-purple-50">
                 Login
