@@ -12,8 +12,8 @@ from datetime import datetime
 
 # Configuration
 BACKEND_URL = "https://interview-buddy-103.preview.emergentagent.com"
-SESSION_TOKEN = "test_session_1766607105860"
-USER_ID = "test-user-1766607105860"
+SESSION_TOKEN = "test_session_1766610330250"
+USER_ID = "test-user-1766610330250"
 
 # Test results tracking
 test_results = {
