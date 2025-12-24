@@ -187,14 +187,14 @@ const ResumeAnalysis = () => {
               <CardContent className="p-8">
                 <div className="text-center mb-6">
                   <div className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent mb-2">
-                    {analysis.overallScore}/100
+                    {analysis?.overall_score || analysis?.overallScore || 0}/100
                   </div>
                   <p className="text-xl text-gray-600">Overall Resume Score</p>
                 </div>
                 <div className="h-4 bg-purple-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-600 to-violet-600 transition-all duration-1000"
-                    style={{ width: `${analysis.overallScore}%` }}
+                    style={{ width: `${analysis?.overall_score || analysis?.overallScore || 0}%` }}
                   ></div>
                 </div>
               </CardContent>
