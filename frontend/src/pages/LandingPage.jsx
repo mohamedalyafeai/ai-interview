@@ -191,10 +191,10 @@ const LandingPage = () => {
             <div className="flex items-center justify-center gap-4">
               <Button
                 size="lg"
-                onClick={() => navigate('/signup')}
+                onClick={() => user ? navigate('/dashboard') : navigate('/signup')}
                 className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white text-lg px-8 py-6 shadow-2xl shadow-purple-500/40 transform hover:scale-105 transition-all duration-200"
               >
-                Get Started Free
+                {user ? 'Go to Dashboard' : 'Get Started Free'}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <Button
