@@ -300,6 +300,12 @@ Return ONLY the JSON object, no other text."""
         if isinstance(completed_at, str):
             completed_at = datetime.fromisoformat(completed_at)
         
+        # Ensure both datetimes have timezone info
+        if started_at.tzinfo is None:
+            started_at = started_at.replace(tzinfo=timezone.utc)
+        if completed_at.tzinfo is None:
+            completed_at = completed_at.replace(tzinfo=timezone.utc)
+        
         duration_minutes = int((completed_at - started_at).total_seconds() / 60)
         
         # Update interview with feedback
