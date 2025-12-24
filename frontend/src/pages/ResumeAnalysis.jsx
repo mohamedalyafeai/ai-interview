@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Sparkles, Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { mockResumeAnalysis } from '../mock/mockData';
+import { authService, resumeService } from '../services/api';
 
 const ResumeAnalysis = () => {
   const navigate = useNavigate();
