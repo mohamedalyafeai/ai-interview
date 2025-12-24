@@ -1,11 +1,43 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import NavBar from '../components/NavBar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { CheckCircle2, Sparkles, TrendingUp, Target, Clock, BarChart3, ArrowRight } from 'lucide-react';
+import { authService } from '../services/api';
+import { toast } from 'sonner';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await authService.getMe();
+        setUser(response.data);
+      } catch (error) {
+        // User not logged in, that's okay
+        setUser(null);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      localStorage.removeItem('user');
+      toast.success('Logged out successfully');
+      setUser(null);
+      navigate('/');
+    } catch (error) {
+      localStorage.removeItem('user');
+      setUser(null);
+      navigate('/');
+    }
+  };
 
   const features = [
     {
