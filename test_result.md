@@ -147,7 +147,7 @@ backend:
     file: "backend/routes/interview.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "testing"
@@ -155,6 +155,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Fixed datetime timezone issue. Complete interview flow working: start interview, submit answers, complete with feedback generation, get history. GPT-4o integration functional."
+      - working: "NA"
+        agent: "main"
+        comment: "Enhanced with adaptive AI conversation logic. System prompts now include conversation context, follow-up question guidance, and adaptive difficulty adjustment. Needs retesting to verify."
 
   - task: "Resume Upload and Analysis APIs"
     implemented: true
