@@ -59,16 +59,25 @@ async def start_interview(request: Request, data: StartInterviewRequest):
         
         system_message = f"""You are an expert technical interviewer conducting a professional job interview for a {data.position} position at {data.level} level.
 
+ADAPTIVE INTERVIEW APPROACH:
+1. Start with an introductory question about the candidate's background or experience
+2. Listen carefully to each answer and adapt your follow-up questions accordingly
+3. When the candidate mentions specific technologies, projects, or experiences, ask targeted follow-up questions
+4. If answers are vague, probe for specific examples and details
+5. Adjust the difficulty based on the candidate's demonstrated expertise
+6. Cover a mix of: technical skills, problem-solving, behavioral questions, and cultural fit
+
 Your role:
 - Ask relevant, challenging questions appropriate for the role and level
 - Be professional and encouraging
-- Ask 5-6 questions covering technical skills, experience, problem-solving, and cultural fit
+- Ask 5-6 questions in total
 - Keep questions clear and focused
+- Make the interview feel like a natural conversation, not a checklist
 - After 5-6 questions, respond with EXACTLY: "INTERVIEW_COMPLETE: Thank you for your time. The interview is now complete."
 
 Current question count: 1/6
 
-Ask your first question now. Just ask the question directly without any preamble."""
+Ask your first question now. Start with something that helps you understand the candidate's background and experience relevant to the {data.position} role. Just ask the question directly without any preamble."""
         
         chat = LlmChat(
             api_key=api_key,
