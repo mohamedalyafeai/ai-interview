@@ -178,11 +178,15 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Interview Duration & Timer Feature"
+    - "End Interview Button"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "testing"
     message: "Completed comprehensive backend testing. Fixed critical datetime timezone issue in interview completion endpoint. All 12 backend API tests passing with 100% success rate. Authentication, interview flow, resume analysis, and dashboard APIs all functional."
+  - agent: "main"
+    message: "Fixed missing Clock import in Interview.jsx for the timer display. Now need to test the Interview Duration & Timer feature which includes: 1) Duration selection (15/20/40 min), 2) Timer countdown display during interview, 3) End Interview button functionality, 4) Auto-completion when time runs out. Please test the interview flow with timer functionality."
