@@ -14,6 +14,7 @@ const Interview = () => {
   const [user, setUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedDuration, setSelectedDuration] = useState('20'); // Default 20 minutes
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [interviewId, setInterviewId] = useState(null);
   const [answer, setAnswer] = useState('');
@@ -21,6 +22,8 @@ const Interview = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [interviewComplete, setInterviewComplete] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [interviewStartTime, setInterviewStartTime] = useState(null);
   
   // Voice recording states
   const [isRecording, setIsRecording] = useState(false);
