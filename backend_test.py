@@ -250,6 +250,143 @@ def test_interview_flow():
         status = response.status_code if response else "No response"
         log_test("GET /api/interview/history", False, f"Status: {status}")
 
+def test_adaptive_ai_conversation():
+    """Test enhanced adaptive AI conversation feature"""
+    print("🤖 Testing Enhanced Adaptive AI Conversation...")
+    
+    # Step 1: Start interview for Software Engineer at Mid Level
+    interview_data = {
+        "position": "Software Engineer",
+        "level": "Mid Level"
+    }
+    
+    response = make_request("POST", "/api/interview/start", data=interview_data)
+    if not response or response.status_code != 200:
+        status = response.status_code if response else "No response"
+        log_test("Adaptive AI - Start Interview", False, f"Status: {status}")
+        return
+    
+    try:
+        start_result = response.json()
+        interview_id = start_result["interview_id"]
+        first_question = start_result["first_question"]
+        log_test("Adaptive AI - Start Interview", True, f"Interview started with question: {first_question[:50]}...")
+        
+    except json.JSONDecodeError:
+        log_test("Adaptive AI - Start Interview", False, "Invalid JSON response")
+        return
+    
+    # Step 2: Submit answer mentioning specific technologies (Python and React)
+    tech_answer = "I have 3 years of experience with Python and React, primarily building web applications. I've worked on several full-stack projects using Django for the backend and React for the frontend, including an e-commerce platform that handles thousands of users daily."
+    
+    answer_data = {
+        "interview_id": interview_id,
+        "answer": tech_answer
+    }
+    
+    response = make_request("POST", "/api/interview/answer", data=answer_data)
+    if response and response.status_code == 200:
+        try:
+            answer_result = response.json()
+            second_question = answer_result.get("next_question", "")
+            
+            # Check if AI references the technologies mentioned
+            tech_references = any(tech.lower() in second_question.lower() for tech in ["python", "react", "django", "full-stack", "e-commerce"])
+            
+            if tech_references:
+                log_test("Adaptive AI - Tech Follow-up", True, f"AI referenced mentioned technologies: {second_question[:80]}...")
+            else:
+                log_test("Adaptive AI - Tech Follow-up", False, f"AI didn't reference technologies. Question: {second_question[:80]}...")
+                
+        except json.JSONDecodeError:
+            log_test("Adaptive AI - Tech Follow-up", False, "Invalid JSON response")
+            return
+    else:
+        status = response.status_code if response else "No response"
+        log_test("Adaptive AI - Tech Follow-up", False, f"Status: {status}")
+        return
+    
+    # Step 3: Give a vague answer to test if AI asks for elaboration
+    vague_answer = "I handle challenges well and always find solutions."
+    
+    answer_data = {
+        "interview_id": interview_id,
+        "answer": vague_answer
+    }
+    
+    response = make_request("POST", "/api/interview/answer", data=answer_data)
+    if response and response.status_code == 200:
+        try:
+            answer_result = response.json()
+            third_question = answer_result.get("next_question", "")
+            
+            # Check if AI asks for specific examples or elaboration
+            probing_keywords = ["example", "specific", "tell me more", "elaborate", "describe", "can you give", "what was", "how did"]
+            asks_for_specifics = any(keyword in third_question.lower() for keyword in probing_keywords)
+            
+            if asks_for_specifics:
+                log_test("Adaptive AI - Vague Answer Probing", True, f"AI asked for specifics: {third_question[:80]}...")
+            else:
+                log_test("Adaptive AI - Vague Answer Probing", False, f"AI didn't probe for specifics. Question: {third_question[:80]}...")
+                
+        except json.JSONDecodeError:
+            log_test("Adaptive AI - Vague Answer Probing", False, "Invalid JSON response")
+            return
+    else:
+        status = response.status_code if response else "No response"
+        log_test("Adaptive AI - Vague Answer Probing", False, f"Status: {status}")
+        return
+    
+    # Step 4: Submit a detailed answer and check conversation context usage
+    detailed_answer = "In my previous role at TechCorp, I faced a critical performance issue where our React application was taking 8+ seconds to load the dashboard. I identified the problem was excessive API calls and implemented lazy loading with React.memo and useMemo hooks. I also optimized our Python backend by adding database indexing and caching with Redis. This reduced load time to under 2 seconds and improved user satisfaction by 40%."
+    
+    answer_data = {
+        "interview_id": interview_id,
+        "answer": detailed_answer
+    }
+    
+    response = make_request("POST", "/api/interview/answer", data=answer_data)
+    if response and response.status_code == 200:
+        try:
+            answer_result = response.json()
+            fourth_question = answer_result.get("next_question", "")
+            
+            # Check if AI builds on the detailed answer (mentions performance, optimization, Redis, etc.)
+            context_keywords = ["performance", "optimization", "redis", "caching", "techcorp", "dashboard", "load time"]
+            uses_context = any(keyword.lower() in fourth_question.lower() for keyword in context_keywords)
+            
+            if uses_context:
+                log_test("Adaptive AI - Context Usage", True, f"AI used conversation context: {fourth_question[:80]}...")
+            else:
+                log_test("Adaptive AI - Context Usage", False, f"AI didn't use context. Question: {fourth_question[:80]}...")
+                
+        except json.JSONDecodeError:
+            log_test("Adaptive AI - Context Usage", False, "Invalid JSON response")
+            return
+    else:
+        status = response.status_code if response else "No response"
+        log_test("Adaptive AI - Context Usage", False, f"Status: {status}")
+        return
+    
+    # Step 5: Complete the interview to test the full flow
+    complete_data = {"interview_id": interview_id}
+    
+    response = make_request("POST", "/api/interview/complete", data=complete_data)
+    if response and response.status_code == 200:
+        try:
+            feedback_result = response.json()
+            if "feedback" in feedback_result:
+                feedback = feedback_result["feedback"]
+                score = feedback.get("overall_score", 0)
+                log_test("Adaptive AI - Interview Completion", True, f"Interview completed with feedback, score: {score}")
+            else:
+                log_test("Adaptive AI - Interview Completion", False, "Missing feedback")
+        except json.JSONDecodeError:
+            log_test("Adaptive AI - Interview Completion", False, "Invalid JSON response")
+    else:
+        status = response.status_code if response else "No response"
+        log_test("Adaptive AI - Interview Completion", False, f"Status: {status}")
+
 def test_resume_endpoints():
     """Test resume upload and analysis"""
     print("📄 Testing Resume Endpoints...")
