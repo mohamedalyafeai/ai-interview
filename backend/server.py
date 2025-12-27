@@ -29,11 +29,13 @@ from routes.auth import router as auth_router
 from routes.interview import router as interview_router
 from routes.resume import router as resume_router
 from routes.dashboard import router as dashboard_router
+from routes.email import router as email_router
 
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(interview_router, prefix="/interview", tags=["interview"])
 api_router.include_router(resume_router, prefix="/resume", tags=["resume"])
 api_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(email_router, prefix="/email", tags=["email"])
 
 # Basic health check
 @api_router.get("/")
