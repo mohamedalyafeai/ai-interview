@@ -502,6 +502,22 @@ const Interview = () => {
                 </Select>
               </div>
 
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Interview Duration
+                </label>
+                <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+                  <SelectTrigger className="w-full border-2 border-purple-200 py-6 text-lg">
+                    <SelectValue placeholder="Choose duration..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15" className="text-lg py-3">15 minutes</SelectItem>
+                    <SelectItem value="20" className="text-lg py-3">20 minutes</SelectItem>
+                    <SelectItem value="40" className="text-lg py-3">40 minutes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="p-6 bg-gradient-to-r from-purple-100 to-violet-100 rounded-lg border border-purple-200">
                 <h4 className="font-semibold text-gray-900 mb-2">What to expect:</h4>
                 <ul className="space-y-2 text-gray-700">
