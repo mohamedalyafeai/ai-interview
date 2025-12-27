@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Sparkles, Video, Send, ArrowLeft, Loader2, MessageCircle, Mic, MicOff, Square } from 'lucide-react';
+import { Sparkles, Video, Send, ArrowLeft, Loader2, MessageCircle, Mic, MicOff, Square, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { authService, interviewService } from '../services/api';
 
