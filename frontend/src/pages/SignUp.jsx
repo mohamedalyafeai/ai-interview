@@ -4,14 +4,16 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Sparkles, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, Mail, Lock, User, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { authService } from '../services/api';
+import { authService, emailService } from '../services/api';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState(1); // 1: Registration, 2: Verification
+  const [verificationCode, setVerificationCode] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,6 +48,39 @@ const SignUp = () => {
 
     setLoading(true);
     try {
+      // First, send verification email
+      await emailService.sendVerification({
+        email: formData.email,
+        name: formData.name
+      });
+      
+      toast.success('Verification code sent to your email!');
+      setStep(2);
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Failed to send verification code';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault();
+    
+    if (!verificationCode || verificationCode.length !== 6) {
+      toast.error('Please enter a valid 6-digit code');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Verify the code
+      await emailService.verifyCode({
+        email: formData.email,
+        code: verificationCode
+      });
+      
+      // Now create the account
       const response = await authService.manualSignup({
         name: formData.name,
         email: formData.email,
@@ -56,13 +91,109 @@ const SignUp = () => {
       toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (error) {
-      const message = error.response?.data?.detail || 'Registration failed';
+      const message = error.response?.data?.detail || 'Verification failed';
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleResendCode = async () => {
+    setLoading(true);
+    try {
+      await emailService.sendVerification({
+        email: formData.email,
+        name: formData.name
+      });
+      toast.success('New verification code sent!');
+    } catch (error) {
+      toast.error('Failed to resend code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Email Verification
+  if (step === 2) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="flex items-center justify-center space-x-3 mb-12">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-xl">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">AI Interview Pro</div>
+              <div className="text-sm text-purple-300">Professional Interview Platform</div>
+            </div>
+          </div>
+
+          <Card className="border border-purple-500/20 shadow-2xl bg-slate-800/90 backdrop-blur-xl">
+            <CardHeader className="text-center pb-6 pt-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-white" />
+              </div>
+              <CardTitle className="text-3xl font-bold text-white mb-3">Verify Your Email</CardTitle>
+              <p className="text-purple-200">
+                We've sent a 6-digit code to<br />
+                <span className="font-semibold text-purple-300">{formData.email}</span>
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6 px-8 pb-8">
+              <form onSubmit={handleVerifyCode} className="space-y-4">
+                <div>
+                  <Label htmlFor="code" className="text-purple-200 mb-2 block">Verification Code</Label>
+                  <Input
+                    id="code"
+                    type="text"
+                    placeholder="Enter 6-digit code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="text-center text-3xl tracking-[0.5em] bg-slate-700/50 border-purple-500/30 text-white placeholder:text-purple-300/50 focus:border-purple-500 py-6"
+                    maxLength={6}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={loading || verificationCode.length !== 6}
+                  className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-6 text-lg font-semibold shadow-xl"
+                >
+                  {loading ? 'Verifying...' : 'Verify & Create Account'}
+                </Button>
+              </form>
+
+              <div className="text-center space-y-4">
+                <p className="text-purple-300 text-sm">
+                  Didn't receive the code?
+                </p>
+                <Button
+                  variant="ghost"
+                  onClick={handleResendCode}
+                  disabled={loading}
+                  className="text-purple-400 hover:text-purple-300"
+                >
+                  Resend Code
+                </Button>
+              </div>
+
+              <Button
+                variant="ghost"
+                onClick={() => setStep(1)}
+                className="w-full text-purple-300 hover:text-purple-200"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Registration
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 1: Registration Form
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
@@ -163,7 +294,7 @@ const SignUp = () => {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white py-6 text-lg font-semibold shadow-xl"
               >
-                {loading ? 'Creating Account...' : 'Create Account'}
+                {loading ? 'Sending Verification...' : 'Continue with Email Verification'}
               </Button>
             </form>
 
@@ -187,7 +318,7 @@ const SignUp = () => {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Sign Up with Google
+              Sign Up with Google (No verification needed)
             </Button>
 
             <div className="relative">
@@ -210,15 +341,11 @@ const SignUp = () => {
             <div className="pt-4 space-y-2">
               <div className="flex items-center justify-center space-x-6 text-xs text-purple-300">
                 <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-1 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  256-bit Encryption
+                  <CheckCircle className="w-4 h-4 mr-1 text-green-400" />
+                  Email Verification
                 </span>
                 <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-1 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
+                  <CheckCircle className="w-4 h-4 mr-1 text-green-400" />
                   Secure Storage
                 </span>
               </div>
