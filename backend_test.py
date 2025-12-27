@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://interview-buddy-103.preview.emergentagent.com"
+BACKEND_URL = "https://mockinterview-7.preview.emergentagent.com"
 SESSION_TOKEN = "test_session_1766610330250"
 USER_ID = "test-user-1766610330250"
 
