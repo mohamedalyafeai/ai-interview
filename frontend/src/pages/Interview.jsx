@@ -587,7 +587,23 @@ const Interview = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-semibold text-gray-600">Question {Math.ceil(conversation.filter(m => m.type === 'ai').length)} of 6</span>
-                  <span className="text-sm font-semibold text-purple-600">{selectedRole} - {selectedLevel}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold text-purple-600">{selectedRole} - {selectedLevel}</span>
+                    {timeRemaining !== null && (
+                      <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${timeRemaining < 300 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                        <Clock className="w-4 h-4" />
+                        <span className="font-mono font-bold">{formatTimeRemaining(timeRemaining)}</span>
+                      </div>
+                    )}
+                    <Button
+                      onClick={handleCompleteInterview}
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      End Interview
+                    </Button>
+                  </div>
                 </div>
                 <div className="h-2 bg-purple-100 rounded-full overflow-hidden">
                   <div
