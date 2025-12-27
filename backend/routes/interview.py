@@ -258,41 +258,69 @@ async def complete_interview(request: Request, data: CompleteRequest):
         # Generate feedback using AI
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         
-        # Build conversation history
+        # Build detailed conversation history
         conversation_text = ""
+        answer_count = 0
         for msg in interview["conversation"]:
             role = "Interviewer" if msg["role"] == "ai" else "Candidate"
             conversation_text += f"{role}: {msg['content']}\n\n"
+            if msg["role"] == "user":
+                answer_count += 1
         
-        feedback_prompt = f"""Analyze the following interview conversation and provide detailed feedback in JSON format.
+        # Enhanced feedback prompt for accurate, personalized feedback
+        feedback_prompt = f"""You are an expert interview coach analyzing a job interview. Provide detailed, ACCURATE feedback based ONLY on what the candidate actually said.
 
-Position: {interview['position']}
-Level: {interview['level']}
+INTERVIEW DETAILS:
+- Position: {interview['position']}
+- Level: {interview['level']}
+- Number of questions answered: {answer_count}
 
-Conversation:
+FULL INTERVIEW TRANSCRIPT:
 {conversation_text}
 
-Provide feedback as a JSON object with this EXACT structure:
+IMPORTANT SCORING GUIDELINES:
+- Score based on the ACTUAL responses given, not on what a good answer would be
+- If the candidate gave short or vague answers, scores should reflect that (lower scores)
+- If the candidate gave detailed, specific answers with examples, scores should be higher
+- Be honest but constructive
+- A score of 5-6 means average, 7-8 means good, 9-10 means excellent
+
+ANALYZE EACH ASPECT:
+1. Communication: Did they express ideas clearly? Were responses structured?
+2. Technical Knowledge: Did they demonstrate relevant technical skills for {interview['position']}?
+3. Problem Solving: Did they show analytical thinking?
+4. Culture Fit: Did they show enthusiasm, teamwork, and alignment with typical company values?
+5. Confidence: Did they answer with assurance? Did they handle questions well?
+
+Provide feedback as a JSON object:
 {{
-  "overall_score": 8.5,
+  "overallScore": <number 1-10 based on actual performance>,
   "categories": {{
-    "communication": 9,
-    "technicalKnowledge": 8,
-    "problemSolving": 8.5,
-    "cultureFit": 9,
-    "confidence": 8
+    "communication": <number 1-10>,
+    "technicalKnowledge": <number 1-10>,
+    "problemSolving": <number 1-10>,
+    "cultureFit": <number 1-10>,
+    "confidence": <number 1-10>
   }},
-  "strengths": ["strength 1", "strength 2", "strength 3", "strength 4"],
-  "improvements": ["improvement 1", "improvement 2", "improvement 3"],
-  "overallFeedback": "Detailed paragraph of overall assessment"
+  "strengths": [
+    "<specific strength based on what they actually said>",
+    "<another specific strength>",
+    "<another specific strength>"
+  ],
+  "improvements": [
+    "<specific area for improvement based on gaps in their responses>",
+    "<another improvement area>",
+    "<another improvement area>"
+  ],
+  "overallFeedback": "<2-3 sentence personalized summary mentioning specific things from their interview>"
 }}
 
-Return ONLY the JSON object, no other text."""
+Return ONLY valid JSON, no markdown or extra text."""
         
         feedback_chat = LlmChat(
             api_key=api_key,
             session_id=f"feedback_{uuid.uuid4().hex[:8]}",
-            system_message="You are an expert interview evaluator. Provide constructive, professional feedback in JSON format."
+            system_message="You are an expert interview evaluator. Provide honest, accurate, and constructive feedback based only on what the candidate actually said in the interview. Return only valid JSON."
         ).with_model("openai", "gpt-4o")
         
         feedback_response = await feedback_chat.send_message(UserMessage(text=feedback_prompt))
@@ -300,33 +328,43 @@ Return ONLY the JSON object, no other text."""
         # Parse JSON response
         try:
             # Extract JSON if wrapped in markdown
-            if "```json" in feedback_response:
-                feedback_response = feedback_response.split("```json")[1].split("```")[0]
-            elif "```" in feedback_response:
-                feedback_response = feedback_response.split("```")[1].split("```")[0]
+            clean_response = feedback_response.strip()
+            if "```json" in clean_response:
+                clean_response = clean_response.split("```json")[1].split("```")[0]
+            elif "```" in clean_response:
+                clean_response = clean_response.split("```")[1].split("```")[0]
             
-            feedback = json.loads(feedback_response.strip())
-        except json.JSONDecodeError:
-            # Fallback feedback
+            feedback = json.loads(clean_response.strip())
+            
+            # Ensure proper field names (camelCase for frontend)
+            if "overall_score" in feedback:
+                feedback["overallScore"] = feedback.pop("overall_score")
+            if "overall_feedback" in feedback:
+                feedback["overallFeedback"] = feedback.pop("overall_feedback")
+                
+        except json.JSONDecodeError as e:
+            # Fallback feedback based on answer count
+            base_score = min(5 + answer_count, 8)
             feedback = {
-                "overall_score": 8.0,
+                "overallScore": base_score,
                 "categories": {
-                    "communication": 8,
-                    "technicalKnowledge": 8,
-                    "problemSolving": 8,
-                    "cultureFit": 8,
-                    "confidence": 8
+                    "communication": base_score,
+                    "technicalKnowledge": base_score - 1,
+                    "problemSolving": base_score - 1,
+                    "cultureFit": base_score,
+                    "confidence": base_score - 1
                 },
                 "strengths": [
-                    "Good communication throughout the interview",
-                    "Demonstrated relevant experience",
-                    "Showed enthusiasm for the role"
+                    "Completed the interview process",
+                    "Showed willingness to engage",
+                    "Responded to all questions asked"
                 ],
                 "improvements": [
-                    "Could provide more specific examples",
-                    "Consider adding more technical details"
+                    "Provide more detailed and specific examples",
+                    "Elaborate on technical experiences",
+                    "Showcase problem-solving approach more clearly"
                 ],
-                "overallFeedback": "You demonstrated solid interview skills. Continue practicing to refine your responses."
+                "overallFeedback": f"You completed the interview for the {interview['position']} position. Practice providing more specific examples and details to strengthen your responses."
             }
         
         # Calculate duration
