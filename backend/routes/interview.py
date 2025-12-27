@@ -132,18 +132,37 @@ async def submit_answer(request: Request, data: AnswerRequest):
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         question_count = interview["question_count"] + 1
         
+        # Build conversation context for adaptive questioning
+        conversation_context = ""
+        for msg in conversation:
+            role = "Interviewer" if msg["role"] == "ai" else "Candidate"
+            conversation_context += f"{role}: {msg['content']}\n\n"
+        
+        # Enhanced system message for adaptive AI
         system_message = f"""You are an expert technical interviewer conducting a professional job interview for a {interview['position']} position at {interview['level']} level.
+
+ADAPTIVE INTERVIEW GUIDELINES:
+1. Analyze the candidate's previous answers to understand their strengths and areas to probe deeper
+2. Ask follow-up questions when the candidate mentions interesting projects, technologies, or experiences
+3. If the candidate gives a vague answer, ask them to elaborate with specific examples
+4. Adjust difficulty based on candidate's demonstrated knowledge level
+5. Probe deeper into technical areas where the candidate shows expertise
+6. If they mention a weakness or challenge, ask how they overcame it
 
 Your role:
 - Ask relevant, challenging questions appropriate for the role and level
 - Be professional and encouraging
 - Ask 5-6 questions covering technical skills, experience, problem-solving, and cultural fit
 - Keep questions clear and focused
+- Reference the candidate's previous answers to make the conversation feel natural
 - After 5-6 questions, respond with EXACTLY: "INTERVIEW_COMPLETE: Thank you for your time. The interview is now complete."
 
 Current question count: {question_count}/6
 
-{"Ask your next question now. Just ask the question directly." if question_count <= 5 else "End the interview now with the completion message."}"""
+CONVERSATION SO FAR:
+{conversation_context}
+
+{"Based on the candidate's last response, ask a relevant follow-up question or move to a new topic. Make sure your question builds on what they've shared. Just ask the question directly without preamble." if question_count <= 5 else "End the interview now with the completion message."}"""
         
         chat = LlmChat(
             api_key=api_key,
@@ -151,8 +170,12 @@ Current question count: {question_count}/6
             system_message=system_message
         ).with_model("openai", "gpt-4o")
         
-        # Send answer and get response
-        user_message = UserMessage(text=data.answer)
+        # Send answer with context for adaptive response
+        adaptive_prompt = f"""The candidate just answered: "{data.answer}"
+
+Based on their response, ask your next interview question. If they mentioned specific technologies, projects, or experiences, consider asking follow-up questions about those topics. Keep the conversation natural and adaptive."""
+        
+        user_message = UserMessage(text=adaptive_prompt)
         ai_response = await chat.send_message(user_message)
         
         # Check if interview is complete
