@@ -210,16 +210,22 @@ const Interview = () => {
   const levels = ['Entry Level', 'Mid Level', 'Senior Level', 'Lead/Principal'];
 
   const startInterview = async () => {
-    if (!selectedRole || !selectedLevel) {
-      toast.error('Please select both role and experience level');
+    if (!selectedRole || !selectedLevel || !selectedDuration) {
+      toast.error('Please select role, level, and duration');
       return;
     }
 
     setIsLoading(true);
     try {
+      // Set timer
+      const durationMinutes = parseInt(selectedDuration);
+      setTimeRemaining(durationMinutes * 60); // Convert to seconds
+      setInterviewStartTime(Date.now());
+
       const response = await interviewService.start({
         position: selectedRole,
-        level: selectedLevel
+        level: selectedLevel,
+        duration: durationMinutes
       });
       
       setInterviewId(response.data.interview_id);
@@ -238,6 +244,43 @@ const Interview = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (interviewStarted && !interviewComplete && timeRemaining > 0) {
+      const timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            // Time's up!
+            clearInterval(timer);
+            toast.info('Time is up! Completing interview...');
+            handleCompleteInterview();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [interviewStarted, interviewComplete, timeRemaining]);
+
+  const handleCompleteInterview = async () => {
+    setInterviewComplete(true);
+    try {
+      const feedbackResponse = await interviewService.complete(interviewId);
+      setFeedback(feedbackResponse.data.feedback);
+      toast.success('Interview completed!');
+    } catch (error) {
+      console.error('Error getting feedback:', error);
+    }
+  };
+
+  const formatTimeRemaining = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const submitAnswer = async () => {
