@@ -151,37 +151,36 @@ async def submit_answer(request: Request, data: AnswerRequest):
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         question_count = interview["question_count"] + 1
         
-        # Build conversation context for adaptive questioning
-        conversation_context = ""
+        # Build conversation history for context
+        conversation_history = ""
         for msg in conversation:
-            role = "Interviewer" if msg["role"] == "ai" else "Candidate"
-            conversation_context += f"{role}: {msg['content']}\n\n"
+            speaker = "Sarah (You)" if msg["role"] == "ai" else "Candidate"
+            conversation_history += f"{speaker}: {msg['content']}\n\n"
         
-        # Enhanced system message for adaptive AI
-        system_message = f"""You are an expert technical interviewer conducting a professional job interview for a {interview['position']} position at {interview['level']} level.
+        # Enhanced system message for truly conversational AI
+        system_message = f"""You are Sarah, an experienced senior hiring manager conducting a real interview for a {interview['position']} position at the {interview['level']} level.
 
-ADAPTIVE INTERVIEW GUIDELINES:
-1. Analyze the candidate's previous answers to understand their strengths and areas to probe deeper
-2. Ask follow-up questions when the candidate mentions interesting projects, technologies, or experiences
-3. If the candidate gives a vague answer, ask them to elaborate with specific examples
-4. Adjust difficulty based on candidate's demonstrated knowledge level
-5. Probe deeper into technical areas where the candidate shows expertise
-6. If they mention a weakness or challenge, ask how they overcame it
+CONVERSATION HISTORY:
+{conversation_history}
 
-Your role:
-- Ask relevant, challenging questions appropriate for the role and level
-- Be professional and encouraging
-- Ask 5-6 questions covering technical skills, experience, problem-solving, and cultural fit
-- Keep questions clear and focused
-- Reference the candidate's previous answers to make the conversation feel natural
-- After 5-6 questions, respond with EXACTLY: "INTERVIEW_COMPLETE: Thank you for your time. The interview is now complete."
+THE CANDIDATE JUST SAID: "{data.answer}"
 
-Current question count: {question_count}/6
+YOUR TASK:
+1. First, briefly acknowledge what they said (1 sentence max) - show you actually listened
+2. Then ask your next interview question
 
-CONVERSATION SO FAR:
-{conversation_context}
+BE NATURAL AND HUMAN:
+- React genuinely to their response
+- If they gave a great answer, say something like "That's impressive..." or "Great experience..."
+- If something was unclear, you can ask for clarification
+- Reference specific things they mentioned
+- Don't be generic - be specific to what they said
 
-{"Based on the candidate's last response, ask a relevant follow-up question or move to a new topic. Make sure your question builds on what they've shared. Just ask the question directly without preamble." if question_count <= 5 else "End the interview now with the completion message."}"""
+INTERVIEW PROGRESS: Question {question_count}/6
+
+{"Ask a relevant follow-up question or move to a new topic. Make it feel like a real conversation." if question_count <= 5 else "Wrap up the interview warmly. Say: 'INTERVIEW_COMPLETE: Thank you so much for your time today. It was great learning about your experience and skills. We will be in touch soon!'"}
+
+Remember: One response only. Be conversational, not robotic."""
         
         chat = LlmChat(
             api_key=api_key,
@@ -189,12 +188,8 @@ CONVERSATION SO FAR:
             system_message=system_message
         ).with_model("openai", "gpt-4o")
         
-        # Send answer with context for adaptive response
-        adaptive_prompt = f"""The candidate just answered: "{data.answer}"
-
-Based on their response, ask your next interview question. If they mentioned specific technologies, projects, or experiences, consider asking follow-up questions about those topics. Keep the conversation natural and adaptive."""
-        
-        user_message = UserMessage(text=adaptive_prompt)
+        # Send just the answer for context
+        user_message = UserMessage(text=f"Candidate's answer: {data.answer}\n\nRespond naturally as Sarah the interviewer.")
         ai_response = await chat.send_message(user_message)
         
         # Check if interview is complete
@@ -213,7 +208,7 @@ Based on their response, ask your next interview question. If they mentioned spe
             )
             
             return {
-                "next_question": "Interview completed. Generating feedback...",
+                "next_question": "Interview completed. Generating your personalized feedback...",
                 "is_complete": True
             }
         
