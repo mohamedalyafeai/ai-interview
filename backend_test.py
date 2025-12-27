@@ -499,6 +499,7 @@ def main():
     test_auth_endpoints()
     test_dashboard_endpoints()
     test_interview_flow()
+    test_adaptive_ai_conversation()  # New test for enhanced adaptive AI
     test_resume_endpoints()
     
     # Print summary
